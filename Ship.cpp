@@ -14,8 +14,8 @@ class Ship{
         enum class ShipSize {
             ONE_DECK = 1,
             TWO_DECK = 2,
-            TREE_DECK = 3,
-            FOUR_DECk = 4
+            THREE_DECK = 3,
+            FOUR_DECK = 4
         };
 
         enum class SegmentHealth {
@@ -23,47 +23,51 @@ class Ship{
             DAMAGED = 1,
             INTACT = 2
         };
+    private:
         ShipSize size;
         Orientation orientation;
         std::vector<SegmentHealth> segments;
-        Ship(int size, Orientation Orientation) : size(ShipSize(size)), orientation(Orientation), segments(size, SegmentHealth::INTACT) {
+    public:
+        Ship(int size, Orientation orientation = Orientation::HORIZONTAL) : orientation(orientation) {
+            if (size < static_cast<int>(ShipSize::ONE_DECK) || size > static_cast<int>(ShipSize::FOUR_DECK)) {
+                throw std::invalid_argument("Invalid size for ship");
+            }
+            this->size = static_cast<ShipSize>(size);
+            segments = std::vector<SegmentHealth>(size, SegmentHealth::INTACT);
         }
 
         void damageSegment(int index){
-            if (index < 0 || index >= (int)this->size){
-                return;
+            if (index < 0 || index >= static_cast<int>(size)){
+                throw std::out_of_range("Invalid segment index");
             }
             if (segments[index] == SegmentHealth::DESTROYED){
                 return;
             }
-            segments[index] = SegmentHealth((int)segments[index] - 1);
+            segments[index] = static_cast<SegmentHealth>(static_cast<int>(segments[index]) - 1);
         }
 
-        ShipSize getSize(){
-            return this->size;
+        void setOrientation(Orientation orientation){
+            this->orientation = orientation;
         }
 
-        Orientation getOrientation(){
-            return this->orientation;
+        ShipSize getSize() const {
+            return size;
         }
 
-        std::vector<SegmentHealth>& getSegments(){
-            return this->segments;
+        Orientation getOrientation() const {
+            return orientation;
         }
-        
 
-    private:
-
-       
-
-
+        const std::vector<SegmentHealth>& getSegments() const {
+            return segments;
+        }
 };
 
 
 int main(){
     Ship sh = Ship(4, Ship::Orientation::HORIZONTAL);
-    for (auto i = 0; i<(int)sh.size; i++){
-        std::cout << (int)sh.segments[i] << std::endl;
+    for (auto i = 0; i<(int)sh.getSize(); i++){
+        std::cout << (int)sh.getSegments()[i] << std::endl;
     }
     // sh.damageSegment(0);
     // sh.damageSegment(0);
@@ -80,8 +84,8 @@ int main(){
     // sh.damageSegment(4);
     // sh.damageSegment(4);
     // sh.damageSegment(4);
-    for (auto i = 0; i<(int)sh.size; i++){
-        std::cout << (int)sh.segments[i] << std::endl;
+    for (auto i = 0; i<(int)sh.getSize(); i++){
+        std::cout << (int)sh.getSegments()[i] << std::endl;
     }
 
 
