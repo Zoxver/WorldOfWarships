@@ -6,12 +6,96 @@ GameField::GameField(int width, int height) : width(width), height(height)
     {
         throw std::invalid_argument("Width and height must be positive");
     }
-    field = std::vector<std::vector<CellStatus>>(height, std::vector<CellStatus>(width, CellStatus::UNKNOWN));
+    field = std::vector<std::vector<CellStatus>>(height, std::vector<CellStatus>(width, CellStatus::EMPTY));
+    enemyField = std::vector<std::vector<CellStatus>>(height, std::vector<CellStatus>(width, CellStatus::UNKNOWN));
+}
+
+GameField::GameField(const GameField &other) : width(other.width), height(other.height), field(other.field), shipManager(other.shipManager), enemyField(other.enemyField), enemyShipManager(other.enemyShipManager)
+{
+}
+
+GameField::GameField(GameField &&other) noexcept : width(other.width), height(other.height), field(std::move(other.field)), shipManager(other.shipManager), enemyField(other.enemyField), enemyShipManager(other.enemyShipManager)
+{
+    other.shipManager = nullptr;
+    other.enemyShipManager = nullptr;
+}
+
+GameField &GameField::operator=(const GameField &other)
+{
+    if(this == &other) return *this;
+
+    width = other.width;
+    height = other.height;
+    field = other.field;
+    shipManager = other.shipManager;
+    enemyField = other.field;
+    enemyShipManager = other.enemyShipManager;
+
+    return *this;
+}
+
+GameField &GameField::operator=(GameField &&other) noexcept
+{
+    if (this == &other) return *this;
+    
+    width = other.width;
+    height = other.height;
+    field = std::move(other.field);
+    shipManager = other.shipManager;
+    enemyField = std::move(other.field);
+    enemyShipManager = other.enemyShipManager;
+    other.shipManager = nullptr;
+    other.enemyShipManager = nullptr;
+
+    return *this;
+    
 }
 
 void GameField::setShipManager(ShipManager* manager)
 {
     shipManager = manager;
+}
+
+void GameField::setEnemyShipManager(ShipManager* manager)
+{
+    enemyShipManager = manager;
+}
+
+bool GameField::isWithinBounds(int x, int y) const
+{
+    return x >= 0 && x < width && y >= 0 && y < height;
+}
+
+bool GameField::isCellOccupied(int x, int y) const
+{
+    return isWithinBounds(x, y) && field[y][x] == CellStatus::SHIP;
+}
+
+void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orientation) const
+{
+    int mx = (orientation == Ship::Orientation::HORIZONTAL) ? x + size - 1 : x;
+    int my = (orientation == Ship::Orientation::HORIZONTAL) ? y : y + size - 1;
+
+    if (!isWithinBounds(x, y) || !isWithinBounds(mx, my))
+    {
+        throw std::out_of_range("Ship cannot be placed outside the field");
+    }
+
+    int startX = x - 1;
+    int startY = y - 1;
+    int endX = (orientation == Ship::Orientation::HORIZONTAL) ? (x + size) : x + 1;
+    int endY = (orientation == Ship::Orientation::HORIZONTAL) ? (y + 1) : (y + size);
+
+    for (int i = startX; i <= endX; ++i)
+    {
+        for (int j = startY; j <= endY; ++j)
+        {
+            if (isCellOccupied(i, j))
+            {
+                throw std::invalid_argument("Ship cannot touch another ship");
+            }
+        }
+    }
 }
 
 void GameField::printField() const
@@ -21,6 +105,29 @@ void GameField::printField() const
         for (int x = 0; x < width; ++x)
         {
             switch (field[y][x])
+            {
+            case CellStatus::UNKNOWN:
+                std::cout << "? ";
+                break;
+            case CellStatus::EMPTY:
+                std::cout << ". ";
+                break;
+            case CellStatus::SHIP:
+                std::cout << "S ";
+                break;
+            }
+        }
+        std::cout << '\n';
+    }
+}
+
+void GameField::printEnemyField() const
+{
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            switch (enemyField[y][x])
             {
             case CellStatus::UNKNOWN:
                 std::cout << "? ";
@@ -67,17 +174,19 @@ void GameField::attackCell(int x, int y)
     {
         throw std::out_of_range("Attack coordinates are out of bounds");
     }
-
-    if (field[y][x] == CellStatus::SHIP)
+    
+    int shipIndex = enemyShipManager->getShipIndexByCoordinates(x, y);
+    if (shipIndex != -1)
     {
-        int shipIndex = shipManager->getShipIndexByCoordinates(x, y);
-        std::pair<int, int> startCords = shipManager->getShipStartCoordinates(x, y);
-        int segmentIndex = (x - startCords.first) + (y - startCords.second); // Упрощенное вычисление индекса
-        shipManager->attackShip(shipIndex, segmentIndex);
+        std::pair<int, int> startCords = enemyShipManager->getShipStartCoordinates(x, y);
+        int segmentIndex = (x - startCords.first) + (y - startCords.second);
+        enemyShipManager->attackShip(shipIndex, segmentIndex);
+        enemyField[y][x] = CellStatus::SHIP;
         std::cout << "Hit at (" << x << ", " << y << ")\n";
     }
     else
-    {
+    {   
+        enemyField[y][x] = CellStatus::EMPTY;
         std::cout << "Miss at (" << x << ", " << y << ")\n";
     }
 }

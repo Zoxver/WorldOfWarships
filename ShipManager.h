@@ -24,13 +24,7 @@ private:
     std::vector<Ship> ships;
     std::unordered_map<std::pair<int, int>, int, hashPair> shipCoordinatesMap;
 
-    void validateShipIndex(int index) const
-    {
-        if (index < 0 || index >= shipsAmount)
-        {
-            throw std::out_of_range("Invalid ship index");
-        }
-    }
+    void validateShipIndex(int index) const;
 
 public:
     ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes);

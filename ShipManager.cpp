@@ -13,6 +13,14 @@ ShipManager::ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes)
     }
 }
 
+void ShipManager::validateShipIndex(int index) const
+{
+    if (index < 0 || index >= shipsAmount)
+    {
+        throw std::out_of_range("Invalid ship index");
+    }
+}
+
 Ship& ShipManager::getShip(int index)
 {
     validateShipIndex(index);
