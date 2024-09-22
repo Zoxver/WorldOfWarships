@@ -1,42 +1,63 @@
-#include <stdlib.h>
-#include <vector>
-#include <iostream>
-#include "Ship.cpp"
+#include "ShipManager.h"
 
+ShipManager::ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes) : shipsAmount(shipsAmount)
+{
+    if (shipsAmount != shipsSizes.size())
+    {
+        throw std::invalid_argument("ships amount must be equal to length of ships sizes");
+    }
 
+    for (int size : shipsSizes)
+    {
+        ships.emplace_back(size);
+    }
+}
 
-class ShipManager{
-    private:
-        int ships_amount;
-        std::vector<Ship> ships;
-    public:
-        ShipManager(int ships_amount, std::initializer_list<int> ships_sizes) : ships_amount(ships_amount){
-            if (ships_amount != ships_sizes.size()){
-                throw std::invalid_argument("ships amount must be equal to lentgh of ships sizes");
-            }
+Ship& ShipManager::getShip(int index)
+{
+    validateShipIndex(index);
+    return ships[index];
+}
 
-            for(int size : ships_sizes){
-                ships.emplace_back(size);
-            }
+std::pair<int, int> ShipManager::getShipStartCoordinates(int x, int y)
+{
+    int shipIndex = getShipIndexByCoordinates(x, y);
+    if (shipIndex == -1)
+    {
+        return {-1, -1};
+    }
+
+    std::pair<int, int> startCoordinates = {x, y};
+
+    for (const auto& pair : shipCoordinatesMap)
+    {
+        if (pair.second == shipIndex)
+        {
+            startCoordinates.first = std::min(startCoordinates.first, pair.first.first);
+            startCoordinates.second = std::min(startCoordinates.second, pair.first.second);
         }
+    }
+    return startCoordinates;
+}
 
-        void attackShip(int shipIndex, int segmentIndex){
-            if (shipIndex < 0 || shipIndex >= ships_amount){
-                throw std::out_of_range("Invalid ship index");
-            }
-            ships[shipIndex].damageSegment(segmentIndex);
-        }
+void ShipManager::attackShip(int shipIndex, int segmentIndex)
+{
+    validateShipIndex(shipIndex);
+    ships[shipIndex].damageSegment(segmentIndex);
+}
 
-        int getShipAmount() const{
-            return ships_amount;
-        }
-};
+void ShipManager::addShipCoordinates(int index, int x, int y)
+{
+    shipCoordinatesMap[{x, y}] = index;
+}
 
+int ShipManager::getShipIndexByCoordinates(int x, int y) const
+{
+    auto it = shipCoordinatesMap.find({x, y});
+    return (it != shipCoordinatesMap.end()) ? it->second : -1;
+}
 
-int main(){
-
-
-
-
-
+int ShipManager::getShipAmount() const
+{
+    return shipsAmount;
 }
