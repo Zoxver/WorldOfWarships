@@ -31,6 +31,7 @@ public:
 
     Ship& getShip(int index);
     std::pair<int, int> getShipStartCoordinates(int x, int y);
+    Ship::SegmentHealth getShipSegmentStatus(int shipIndex, int segmentIndex);
     void attackShip(int shipIndex, int segmentIndex);
     void addShipCoordinates(int index, int x, int y);
     int getShipIndexByCoordinates(int x, int y) const;

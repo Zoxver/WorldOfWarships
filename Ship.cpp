@@ -8,12 +8,17 @@ Ship::Ship(int size, Orientation orientation) : orientation(orientation), size(s
     }
 }
 
-void Ship::damageSegment(int index)
+void Ship::checkSegmentIndex(int index) const
 {
     if (index < 0 || index >= static_cast<int>(size))
     {
         throw std::out_of_range("Invalid segment index");
     }
+}
+
+void Ship::damageSegment(int index)
+{
+    checkSegmentIndex(index);
     if (segments[index] == SegmentHealth::DESTROYED)
     {
         return;
@@ -34,6 +39,13 @@ Ship::ShipSize Ship::getSize() const
 Ship::Orientation Ship::getOrientation() const
 {
     return orientation;
+}
+
+Ship::SegmentHealth Ship::getSegmentStatus(int index) const
+{
+    Ship::checkSegmentIndex(index);
+    return segments[index];
+
 }
 
 const std::vector<Ship::SegmentHealth>& Ship::getSegments() const

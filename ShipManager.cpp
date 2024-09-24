@@ -48,6 +48,13 @@ std::pair<int, int> ShipManager::getShipStartCoordinates(int x, int y)
     return startCoordinates;
 }
 
+Ship::SegmentHealth ShipManager::getShipSegmentStatus(int shipIndex, int segmentIndex)
+{
+    validateShipIndex(shipIndex);
+    return ships[shipIndex].getSegmentStatus(segmentIndex);
+
+}
+
 void ShipManager::attackShip(int shipIndex, int segmentIndex)
 {
     validateShipIndex(shipIndex);

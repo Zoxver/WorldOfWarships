@@ -113,7 +113,21 @@ void GameField::printField() const
                 std::cout << ". ";
                 break;
             case CellStatus::SHIP:
-                std::cout << "S ";
+                int shipIndex = shipManager->getShipIndexByCoordinates(x, y);
+                std::pair<int, int> startCords = shipManager->getShipStartCoordinates(x, y);
+                int segmentIndex = (x - startCords.first) + (y - startCords.second);
+                switch (shipManager->getShipSegmentStatus(shipIndex, segmentIndex))
+                {
+                case Ship::SegmentHealth::INTACT:
+                    std::cout << "S ";
+                    break;
+                case Ship::SegmentHealth::DAMAGED:
+                    std::cout << "+ ";
+                    break;
+                case Ship::SegmentHealth::DESTROYED:
+                    std::cout << "X ";
+                    break;
+                }
                 break;
             }
         }
@@ -136,7 +150,21 @@ void GameField::printEnemyField() const
                 std::cout << ". ";
                 break;
             case CellStatus::SHIP:
-                std::cout << "S ";
+                int shipIndex = enemyShipManager->getShipIndexByCoordinates(x, y);
+                std::pair<int, int> startCords = enemyShipManager->getShipStartCoordinates(x, y);
+                int segmentIndex = (x - startCords.first) + (y - startCords.second);
+                switch (enemyShipManager->getShipSegmentStatus(shipIndex, segmentIndex))
+                {
+                case Ship::SegmentHealth::INTACT:
+                    std::cout << "S ";
+                    break;
+                case Ship::SegmentHealth::DAMAGED:
+                    std::cout << "+ ";
+                    break;
+                case Ship::SegmentHealth::DESTROYED:
+                    std::cout << "X ";
+                    break;
+                }
                 break;
             }
         }
