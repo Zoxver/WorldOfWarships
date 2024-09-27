@@ -38,8 +38,7 @@ public:
 
     void setShipManager(ShipManager* manager);
     void setEnemyShipManager(ShipManager* manager);
-    void printField() const;
-    void printEnemyField() const;
+    void printField(bool isEnemy = false) const;
     void placeShip(int shipIndex, int x, int y, Ship::Orientation orientation);
     void attackCell(int x, int y);
     CellStatus getCellStatus(int x, int y) const;

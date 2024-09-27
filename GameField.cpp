@@ -98,13 +98,15 @@ void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orie
     }
 }
 
-void GameField::printField() const
+void GameField::printField(bool isEnemy) const
 {
+    ShipManager* manager = isEnemy ? enemyShipManager : shipManager;
+    const std::vector<std::vector<CellStatus>>& fieldToPrint = isEnemy ? enemyField : field;
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
         {
-            switch (field[y][x])
+            switch (fieldToPrint[y][x])
             {
             case CellStatus::UNKNOWN:
                 std::cout << "? ";
@@ -113,47 +115,10 @@ void GameField::printField() const
                 std::cout << ". ";
                 break;
             case CellStatus::SHIP:
-                int shipIndex = shipManager->getShipIndexByCoordinates(x, y);
-                std::pair<int, int> startCords = shipManager->getShipStartCoordinates(x, y);
+                int shipIndex = manager->getShipIndexByCoordinates(x, y);
+                std::pair<int, int> startCords = manager->getShipStartCoordinates(x, y);
                 int segmentIndex = (x - startCords.first) + (y - startCords.second);
-                switch (shipManager->getShipSegmentStatus(shipIndex, segmentIndex))
-                {
-                case Ship::SegmentHealth::INTACT:
-                    std::cout << "S ";
-                    break;
-                case Ship::SegmentHealth::DAMAGED:
-                    std::cout << "+ ";
-                    break;
-                case Ship::SegmentHealth::DESTROYED:
-                    std::cout << "X ";
-                    break;
-                }
-                break;
-            }
-        }
-        std::cout << '\n';
-    }
-}
-
-void GameField::printEnemyField() const
-{
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            switch (enemyField[y][x])
-            {
-            case CellStatus::UNKNOWN:
-                std::cout << "? ";
-                break;
-            case CellStatus::EMPTY:
-                std::cout << ". ";
-                break;
-            case CellStatus::SHIP:
-                int shipIndex = enemyShipManager->getShipIndexByCoordinates(x, y);
-                std::pair<int, int> startCords = enemyShipManager->getShipStartCoordinates(x, y);
-                int segmentIndex = (x - startCords.first) + (y - startCords.second);
-                switch (enemyShipManager->getShipSegmentStatus(shipIndex, segmentIndex))
+                switch (manager->getShipSegmentStatus(shipIndex, segmentIndex))
                 {
                 case Ship::SegmentHealth::INTACT:
                     std::cout << "S ";
