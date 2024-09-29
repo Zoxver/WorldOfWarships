@@ -1,8 +1,8 @@
 #include "Ship.h"
 
-Ship::Ship(int size, Orientation orientation) : orientation(orientation), size(static_cast<ShipSize>(size)), segments(size, SegmentHealth::INTACT)
+Ship::Ship(int size, Orientation orientation) : orientation(orientation), size(static_cast<ShipSize>(size)), segments(size, SegmentHealth::intact)
 {
-    if (size < static_cast<int>(ShipSize::ONE_DECK) || size > static_cast<int>(ShipSize::FOUR_DECK))
+    if (size < static_cast<int>(ShipSize::oneDeck) || size > static_cast<int>(ShipSize::fourDeck))
     {
         throw std::invalid_argument("Invalid size for ship");
     }
@@ -19,7 +19,7 @@ void Ship::checkSegmentIndex(int index) const
 void Ship::damageSegment(int index)
 {
     checkSegmentIndex(index);
-    if (segments[index] == SegmentHealth::DESTROYED)
+    if (segments[index] == SegmentHealth::destroyed)
     {
         return;
     }

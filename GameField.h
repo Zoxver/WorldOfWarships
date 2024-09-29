@@ -11,9 +11,9 @@ class GameField
 public:
     enum class CellStatus
     {
-        UNKNOWN,
-        EMPTY,
-        SHIP
+        unknown,
+        empty,
+        ship
     };
 
 private:

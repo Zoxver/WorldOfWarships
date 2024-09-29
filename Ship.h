@@ -7,9 +7,9 @@
 class Ship
 {
 public:
-    enum class Orientation { HORIZONTAL, VERTICAL };
-    enum class ShipSize { ONE_DECK = 1, TWO_DECK, THREE_DECK, FOUR_DECK };
-    enum class SegmentHealth { DESTROYED = 0, DAMAGED, INTACT };
+    enum class Orientation { horizontal, vertical };
+    enum class ShipSize { oneDeck = 1, twoDeck, threeDeck, fourDeck };
+    enum class SegmentHealth { destroyed = 0, damaged, intact };
 
 private:
     ShipSize size;
@@ -17,7 +17,7 @@ private:
     std::vector<SegmentHealth> segments;
 
 public:
-    Ship(int size, Orientation orientation = Orientation::HORIZONTAL);
+    Ship(int size, Orientation orientation = Orientation::horizontal);
 
     void checkSegmentIndex(int index) const;
     void damageSegment(int index);
