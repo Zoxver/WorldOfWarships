@@ -14,7 +14,7 @@ GameField::GameField(const GameField &other) : width(other.width), height(other.
 {
 }
 
-GameField::GameField(GameField &&other) noexcept : width(other.width), height(other.height), field(std::move(other.field)), shipManager(other.shipManager), enemyField(other.enemyField), enemyShipManager(other.enemyShipManager)
+GameField::GameField(GameField &&other) noexcept : width(other.width), height(other.height), field(std::move(other.field)), shipManager(other.shipManager), enemyField(std::move(other.enemyField)), enemyShipManager(other.enemyShipManager)
 {
     other.shipManager = nullptr;
     other.enemyShipManager = nullptr;
@@ -28,7 +28,7 @@ GameField &GameField::operator=(const GameField &other)
     height = other.height;
     field = other.field;
     shipManager = other.shipManager;
-    enemyField = other.field;
+    enemyField = other.enemyField;
     enemyShipManager = other.enemyShipManager;
 
     return *this;
@@ -42,7 +42,7 @@ GameField &GameField::operator=(GameField &&other) noexcept
     height = other.height;
     field = std::move(other.field);
     shipManager = other.shipManager;
-    enemyField = std::move(other.field);
+    enemyField = std::move(other.enemyField);
     enemyShipManager = other.enemyShipManager;
     other.shipManager = nullptr;
     other.enemyShipManager = nullptr;
