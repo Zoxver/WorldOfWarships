@@ -21,7 +21,6 @@ public:
 
     void checkSegmentIndex(int index) const;
     void damageSegment(int index);
-    void setOrientation(Orientation orientation);
     SegmentHealth getSegmentStatus(int index) const;
     ShipSize getSize() const;
     Orientation getOrientation() const;

@@ -27,51 +27,6 @@ Ship& ShipManager::getShip(int index)
     return ships[index];
 }
 
-std::pair<int, int> ShipManager::getShipStartCoordinates(int x, int y)
-{
-    int shipIndex = getShipIndexByCoordinates(x, y);
-    if (shipIndex == -1)
-    {
-        return {-1, -1};
-    }
-
-    std::pair<int, int> startCoordinates = {x, y};
-
-    for (const auto& pair : shipCoordinatesMap)
-    {
-        if (pair.second == shipIndex)
-        {
-            startCoordinates.first = std::min(startCoordinates.first, pair.first.first);
-            startCoordinates.second = std::min(startCoordinates.second, pair.first.second);
-        }
-    }
-    return startCoordinates;
-}
-
-Ship::SegmentHealth ShipManager::getShipSegmentStatus(int shipIndex, int segmentIndex)
-{
-    validateShipIndex(shipIndex);
-    return ships[shipIndex].getSegmentStatus(segmentIndex);
-
-}
-
-void ShipManager::attackShip(int shipIndex, int segmentIndex)
-{
-    validateShipIndex(shipIndex);
-    ships[shipIndex].damageSegment(segmentIndex);
-}
-
-void ShipManager::addShipCoordinates(int index, int x, int y)
-{
-    shipCoordinatesMap[{x, y}] = index;
-}
-
-int ShipManager::getShipIndexByCoordinates(int x, int y) const
-{
-    auto it = shipCoordinatesMap.find({x, y});
-    return (it != shipCoordinatesMap.end()) ? it->second : -1;
-}
-
 int ShipManager::getShipAmount() const
 {
     return shipsAmount;

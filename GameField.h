@@ -2,27 +2,18 @@
 #define GAMEFIELD_H
 
 #include <stdexcept>
-#include <iostream>
 #include <vector>
 #include "ShipManager.h"
+#include "Cell.h"
 
 class GameField
 {
-public:
-    enum class CellStatus
-    {
-        unknown,
-        empty,
-        ship
-    };
 
 private:
     int width;
     int height;
-    std::vector<std::vector<CellStatus>> field;
-    std::vector<std::vector<CellStatus>> enemyField;
+    std::vector<std::vector<Cell>> field;
     ShipManager* shipManager = nullptr;
-    ShipManager* enemyShipManager = nullptr;
 
     bool isWithinBounds(int x, int y) const;
     bool isCellOccupied(int x, int y) const;
@@ -37,11 +28,10 @@ public:
     GameField &operator=(GameField &&other) noexcept;
 
     void setShipManager(ShipManager* manager);
-    void setEnemyShipManager(ShipManager* manager);
-    void printField(bool isEnemy = false) const;
+    void printField(bool isForEnemy = true) const;
+    std::pair<int, int> getShipStartCoordinates(Ship& ship);
     void placeShip(int shipIndex, int x, int y, Ship::Orientation orientation);
     void attackCell(int x, int y);
-    CellStatus getCellStatus(int x, int y) const;
 };
 
 #endif

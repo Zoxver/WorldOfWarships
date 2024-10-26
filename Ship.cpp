@@ -26,11 +26,6 @@ void Ship::damageSegment(int index)
     segments[index] = static_cast<SegmentHealth>(static_cast<int>(segments[index]) - 1);
 }
 
-void Ship::setOrientation(Orientation orientation)
-{
-    this->orientation = orientation;
-}
-
 Ship::ShipSize Ship::getSize() const
 {
     return size;
