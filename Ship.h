@@ -19,6 +19,7 @@ private:
 public:
     Ship(int size, Orientation orientation = Orientation::horizontal);
 
+    bool isSunk() const;
     void checkSegmentIndex(int index) const;
     void damageSegment(int index);
     SegmentHealth getSegmentStatus(int index) const;

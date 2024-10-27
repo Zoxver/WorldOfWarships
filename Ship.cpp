@@ -8,6 +8,18 @@ Ship::Ship(int size, Orientation orientation) : orientation(orientation), size(s
     }
 }
 
+bool Ship::isSunk() const
+{
+    for (Ship::SegmentHealth seg : segments)
+    {
+        if (seg != Ship::SegmentHealth::destroyed)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Ship::checkSegmentIndex(int index) const
 {
     if (index < 0 || index >= static_cast<int>(size))

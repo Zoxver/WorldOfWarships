@@ -1,5 +1,6 @@
 #include "GameField.h"
 
+
 GameField::GameField(int width, int height) : width(width), height(height)
 {
     if (width <= 0 || height <= 0)
@@ -48,6 +49,11 @@ void GameField::setShipManager(ShipManager* manager)
     shipManager = manager;
 }
 
+void GameField::setAbilityManager(AbilityManager* manager)
+{
+    abilityManager = manager;
+}
+
 bool GameField::isWithinBounds(int x, int y) const
 {
     return x >= 0 && x < width && y >= 0 && y < height;
@@ -85,13 +91,25 @@ void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orie
     }
 }
 
-void GameField::printField(bool isForEnemy) const
+void GameField::printField(bool isForEnemy, int startX, int startY, int endX, int endY) const
 {
-    for (int y = 0; y < height; ++y)
+    if (endX == -1) 
     {
-        for (int x = 0; x < width; ++x)
-        {
-            field[y][x].printCell(isForEnemy);
+        endX = width;
+    }
+    if (endY == -1) 
+    {
+        endY = height;
+    }
+    for (int y = startY; y < endY; ++y)
+    {
+        for (int x = startX; x < endX; ++x)
+        {   
+            if (isWithinBounds(x, y))
+            {
+                field[y][x].printCell(isForEnemy);
+            }
+            
         }
         std::cout << '\n';
     }
@@ -136,7 +154,6 @@ void GameField::placeShip(int shipIndex, int x, int y, Ship::Orientation orienta
         int yCord = y + i * dy;
         field[yCord][xCord].setShip(&ship);
         std::pair<int, int> startCords = getShipStartCoordinates(ship);
-                        std::cout << startCords.first << ' ' << startCords.second <<  '\n';
         int segmentIndex = (xCord - startCords.first) + (yCord - startCords.second);
         field[yCord][xCord].setSegmentIndex(segmentIndex);
         
@@ -148,16 +165,33 @@ void GameField::attackCell(int x, int y)
     if (!isWithinBounds(x, y))
     {
         throw std::out_of_range("Attack coordinates are out of bounds");
-    }
-        
-        if (field[y][x].attack()) 
+    } 
+    if (field[y][x].attack())
+    {
+        std::cout << "Hit at (" << x << ", " << y << ")\n";
+        if (field[y][x].getShip()->isSunk())
         {
-            std::cout << "Hit at (" << x << ", " << y << ")\n";
-        } else
-        {
-            std::cout << "Miss at (" << x << ", " << y << ")\n";
+            abilityManager->getRandomAbility();
         }
-        
+    } else
+    {
+        std::cout << "Miss at (" << x << ", " << y << ")\n";
+    }
+}
 
+void GameField::randomFire() 
+{
+    int x, y;
+    bool hit = false;
 
+    while (!hit) 
+    {
+        x = rand() % width;
+        y = rand() % height;
+        if (field[y][x].getShip())
+        {
+            attackCell(x, y);
+            hit = true;
+        }
+    }
 }
