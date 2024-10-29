@@ -13,9 +13,8 @@ class GameField
 private:
     int width;
     int height;
+    bool abilityRequired = false;
     std::vector<std::vector<Cell>> field;
-    ShipManager* shipManager = nullptr;
-    AbilityManager* abilityManager = nullptr;
 
     bool isWithinBounds(int x, int y) const;
     bool isCellOccupied(int x, int y) const;
@@ -29,11 +28,10 @@ public:
     GameField &operator=(const GameField &other);
     GameField &operator=(GameField &&other) noexcept;
 
-    void setShipManager(ShipManager* manager);
-    void setAbilityManager(AbilityManager* manager);
+    bool getAbilityRequired() const;
     void printField(bool isForEnemy = true, int startX = 0, int startY = 0, int endX = -1, int endY = -1) const;
     std::pair<int, int> getShipStartCoordinates(Ship& ship);
-    void placeShip(int shipIndex, int x, int y, Ship::Orientation orientation);
+    void placeShip(Ship& ship, int x, int y, Ship::Orientation orientation);
     void attackCell(int x, int y);
     void randomFire();
 };

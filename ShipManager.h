@@ -12,8 +12,6 @@ private:
     int shipsAmount;
     std::vector<Ship> ships;
 
-    void validateShipIndex(int index) const;
-
 public:
     ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes);
     

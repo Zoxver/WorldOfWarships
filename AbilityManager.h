@@ -8,18 +8,24 @@
 
 class GameField;
 
-class AbilityManager {
+class AbilityManager 
+{
 private:
     GameField& field;
     std::queue<IAbility*> abilityQueue;
     std::vector<IAbility*> availableAbilities;
+    std::unordered_map<std::string, int> currentParams;
 
 public:
     AbilityManager(GameField& field);
+    void setCurrentAbilityParams(const std::unordered_map<std::string, int>& params);
+    std::pair<std::string, std::vector<std::string>> getCurrentAbilityParams() const;
+    void activateAbility();
+    void getRandomAbility();
+
+private:
     void initializeAbilities();
     void fillInitialQueue();
-    void getRandomAbility();
-    void activateAbility();
 };
 
 #endif

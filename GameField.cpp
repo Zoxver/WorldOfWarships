@@ -1,22 +1,23 @@
 #include "GameField.h"
-
+#include "AttackOutOfBoundsException.h"
+#include "FieldSizeException.h"
+#include "ShipPlacementException.h"
 
 GameField::GameField(int width, int height) : width(width), height(height)
 {
     if (width <= 0 || height <= 0)
     {
-        throw std::invalid_argument("Width and height must be positive");
+        throw FieldSizeException();
     }
     field = std::vector<std::vector<Cell>>(height, std::vector<Cell>(width));
 }
 
-GameField::GameField(const GameField &other) : width(other.width), height(other.height), field(other.field), shipManager(other.shipManager)
+GameField::GameField(const GameField &other) : width(other.width), height(other.height), field(other.field)
 {
 }
 
-GameField::GameField(GameField &&other) noexcept : width(other.width), height(other.height), field(std::move(other.field)), shipManager(other.shipManager)
+GameField::GameField(GameField &&other) noexcept : width(other.width), height(other.height), field(std::move(other.field))
 {
-    other.shipManager = nullptr;
 }
 
 GameField &GameField::operator=(const GameField &other)
@@ -26,7 +27,6 @@ GameField &GameField::operator=(const GameField &other)
     width = other.width;
     height = other.height;
     field = other.field;
-    shipManager = other.shipManager;
 
     return *this;
 }
@@ -38,20 +38,8 @@ GameField &GameField::operator=(GameField &&other) noexcept
     width = other.width;
     height = other.height;
     field = std::move(other.field);
-    shipManager = other.shipManager;
-
     return *this;
     
-}
-
-void GameField::setShipManager(ShipManager* manager)
-{
-    shipManager = manager;
-}
-
-void GameField::setAbilityManager(AbilityManager* manager)
-{
-    abilityManager = manager;
 }
 
 bool GameField::isWithinBounds(int x, int y) const
@@ -71,7 +59,7 @@ void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orie
 
     if (!isWithinBounds(x, y) || !isWithinBounds(mx, my))
     {
-        throw std::out_of_range("Ship cannot be placed outside the field");
+        throw ShipPlacementException();
     }
 
     int startX = x - 1;
@@ -85,10 +73,15 @@ void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orie
         {
             if (isCellOccupied(i, j))
             {
-                throw std::invalid_argument("Ship cannot touch another ship");
+                throw ShipPlacementException();
             }
         }
     }
+}
+
+bool GameField::getAbilityRequired() const
+{
+    return abilityRequired;
 }
 
 void GameField::printField(bool isForEnemy, int startX, int startY, int endX, int endY) const
@@ -133,14 +126,9 @@ std::pair<int, int> GameField::getShipStartCoordinates(Ship& ship)
     return startCoordinates;
 }
 
-void GameField::placeShip(int shipIndex, int x, int y, Ship::Orientation orientation)
+void GameField::placeShip(Ship& ship, int x, int y, Ship::Orientation orientation)
 {
-    if (!shipManager)
-    {
-        throw std::runtime_error("ShipManager is not set");
-    }
-
-    Ship& ship = shipManager->getShip(shipIndex);
+    
     int size = static_cast<int>(ship.getSize());
 
     validatePlacement(x, y, size, orientation);
@@ -156,7 +144,6 @@ void GameField::placeShip(int shipIndex, int x, int y, Ship::Orientation orienta
         std::pair<int, int> startCords = getShipStartCoordinates(ship);
         int segmentIndex = (xCord - startCords.first) + (yCord - startCords.second);
         field[yCord][xCord].setSegmentIndex(segmentIndex);
-        
     }
 }
 
@@ -164,14 +151,14 @@ void GameField::attackCell(int x, int y)
 {
     if (!isWithinBounds(x, y))
     {
-        throw std::out_of_range("Attack coordinates are out of bounds");
+        throw AttackOutOfBoundsException();
     } 
     if (field[y][x].attack())
     {
         std::cout << "Hit at (" << x << ", " << y << ")\n";
         if (field[y][x].getShip()->isSunk())
         {
-            abilityManager->getRandomAbility();
+            abilityRequired = true;
         }
     } else
     {

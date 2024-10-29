@@ -1,10 +1,14 @@
 #include "AbilityManager.h"
-#include "Abilities.h"
+#include "DoubleDamageAbility.h"
+#include "RandomFireAbility.h"
+#include "ScannerAbility.h"
 #include "GameField.h"
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
+#include "AttackOutOfBoundsException.h"
+#include "FieldSizeException.h"
+#include "NoAbilitiesException.h"
+#include "ShipPlacementException.h"
 #include <random>
+#include <algorithm>
 
 AbilityManager::AbilityManager(GameField& field) : field(field) {
     initializeAbilities();
@@ -27,6 +31,22 @@ void AbilityManager::fillInitialQueue() {
     }
 }
 
+void AbilityManager::setCurrentAbilityParams(const std::unordered_map<std::string, int>& params) 
+{
+    currentParams = params;
+}
+
+std::pair<std::string, std::vector<std::string>> AbilityManager::getCurrentAbilityParams() const 
+{   
+    if (abilityQueue.empty()) 
+    {
+        throw NoAbilitiesException();
+    }
+    IAbility* ability = abilityQueue.front();
+    std::vector<std::string> params = ability->requiredParams();
+    return {ability->getName(), params};
+}
+
 void AbilityManager::getRandomAbility() 
 {
     int randomIndex = rand() % availableAbilities.size();
@@ -35,13 +55,14 @@ void AbilityManager::getRandomAbility()
 }
 
 void AbilityManager::activateAbility() {
-    if (abilityQueue.empty()) {
-        throw std::runtime_error("No abilities available");
+    if (abilityQueue.empty()) 
+    {
+        throw NoAbilitiesException();
     }
 
     IAbility* ability = abilityQueue.front();
-    abilityQueue.pop();
-
-    ability->getParams();
+    
+    ability->setParams(currentParams);
     ability->activate();
+    abilityQueue.pop();
 }
