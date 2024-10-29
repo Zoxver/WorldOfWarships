@@ -9,8 +9,6 @@ public:
     RandomFireAbility(GameField& field);
     void activate() override;
     std::string getName() const override;
-    std::vector<std::string> requiredParams() const override;
-    void setParams(const std::unordered_map<std::string, int>& params) override;
 
 private:
     GameField& field;

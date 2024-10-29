@@ -32,7 +32,7 @@ public:
     void printField(bool isForEnemy = true, int startX = 0, int startY = 0, int endX = -1, int endY = -1) const;
     std::pair<int, int> getShipStartCoordinates(Ship& ship);
     void placeShip(Ship& ship, int x, int y, Ship::Orientation orientation);
-    void attackCell(int x, int y);
+    void attackCell(int x, int y, bool attack = true);
     void randomFire();
 };
 

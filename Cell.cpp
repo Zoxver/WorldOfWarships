@@ -15,8 +15,8 @@ void Cell::setSegmentIndex(int index) {
     segmentIndex = index;
 }
 
-bool Cell::attack() {
-    attacked = true;
+bool Cell::attack(bool attack) {
+    attacked = attack;
     if (ship) {
         ship->damageSegment(segmentIndex);
         status = CellStatus::ship;

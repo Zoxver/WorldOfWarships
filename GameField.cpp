@@ -147,22 +147,25 @@ void GameField::placeShip(Ship& ship, int x, int y, Ship::Orientation orientatio
     }
 }
 
-void GameField::attackCell(int x, int y)
+void GameField::attackCell(int x, int y, bool attack)
 {
     if (!isWithinBounds(x, y))
     {
         throw AttackOutOfBoundsException();
     } 
-    if (field[y][x].attack())
-    {
-        std::cout << "Hit at (" << x << ", " << y << ")\n";
+    if (field[y][x].attack(attack))
+    {   
+        if (attack)
+        {
+            std::cout << "Попадание по координатам (" << x << ", " << y << ")\n";
+        }
         if (field[y][x].getShip()->isSunk())
         {
             abilityRequired = true;
         }
     } else
     {
-        std::cout << "Miss at (" << x << ", " << y << ")\n";
+        std::cout << "Промах по координатам (" << x << ", " << y << ")\n";
     }
 }
 
@@ -177,7 +180,7 @@ void GameField::randomFire()
         y = rand() % height;
         if (field[y][x].getShip())
         {
-            attackCell(x, y);
+            attackCell(x, y, false);
             hit = true;
         }
     }

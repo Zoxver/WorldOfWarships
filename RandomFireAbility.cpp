@@ -11,10 +11,3 @@ std::string RandomFireAbility::getName() const
 {
     return "Обстрел";
 }
-
-std::vector<std::string> RandomFireAbility::requiredParams() const
-{
-    return {};
-}
-    
-void RandomFireAbility::setParams(const std::unordered_map<std::string, int>& params) {}
