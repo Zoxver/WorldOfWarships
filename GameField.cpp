@@ -171,17 +171,22 @@ void GameField::attackCell(int x, int y, bool attack)
 
 void GameField::randomFire() 
 {
-    int x, y;
-    bool hit = false;
+    std::vector<std::pair<int, int>> shipCells;
 
-    while (!hit) 
+    for (int y = 0; y < height; ++y) 
     {
-        x = rand() % width;
-        y = rand() % height;
-        if (field[y][x].getShip())
+        for (int x = 0; x < width; ++x) 
         {
-            attackCell(x, y, false);
-            hit = true;
+            if (field[y][x].getShip()) 
+            {
+                shipCells.emplace_back(x, y);
+            }
         }
     }
+
+    int randomIndex = rand() % shipCells.size();
+    int x = shipCells[randomIndex].first;
+    int y = shipCells[randomIndex].second;
+    attackCell(x, y, false);
+
 }
