@@ -28,14 +28,19 @@ void Ship::checkSegmentIndex(int index) const
     }
 }
 
-void Ship::damageSegment(int index)
+bool Ship::damageSegment(int index, int damage)
 {
     checkSegmentIndex(index);
     if (segments[index] == SegmentHealth::destroyed)
     {
-        return;
+        return false;
     }
-    segments[index] = static_cast<SegmentHealth>(static_cast<int>(segments[index]) - 1);
+    segments[index] = static_cast<SegmentHealth>(std::max(static_cast<int>(segments[index]) - damage, 0));
+    if (this->isSunk())
+    {
+        return true;
+    }
+    return false;
 }
 
 Ship::ShipSize Ship::getSize() const

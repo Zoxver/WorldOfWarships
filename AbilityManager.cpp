@@ -1,8 +1,7 @@
 #include "AbilityManager.h"
-#include "DoubleDamageAbility.h"
-#include "RandomFireAbility.h"
-#include "ScannerAbility.h"
-#include "GameField.h"
+#include "DoubleDamageFactory.h"
+#include "ScannerFactory.h"
+#include "RandomFireFactory.h"
 #include "AttackOutOfBoundsException.h"
 #include "FieldSizeException.h"
 #include "NoAbilitiesException.h"
@@ -10,59 +9,95 @@
 #include <random>
 #include <algorithm>
 
-AbilityManager::AbilityManager(GameField& field) : field(field) {
-    initializeAbilities();
+AbilityManager::AbilityManager(GameField& field, IInfoHolder& infoHolder, IReader& reader, IPlayer* player) : field(field), infoHolder(infoHolder)
+{
+    infoHolder.setReader(&reader);
+
+    factories = {
+        new DoubleDamageFactory(field),
+        new ScannerFactory(field),
+        new RandomFireFactory(field)
+    };
+
     fillInitialQueue();
 }
 
-void AbilityManager::initializeAbilities() {
-    availableAbilities.push_back(new DoubleDamageAbility(field));
-    availableAbilities.push_back(new ScannerAbility(field));
-    availableAbilities.push_back(new RandomFireAbility(field));
+AbilityManager::AbilityManager(const AbilityManager& other) : field(other.field), infoHolder(other.infoHolder), factories(other.factories), abilityQueue(other.abilityQueue) {}
+
+AbilityManager& AbilityManager::operator=(const AbilityManager& other) {
+    if (this != &other) {
+        field = other.field;
+        infoHolder = other.infoHolder;
+        factories = other.factories;
+        abilityQueue = other.abilityQueue;
+    }
+
+    return *this;
 }
 
-void AbilityManager::fillInitialQueue() {
+
+void AbilityManager::fillInitialQueue() 
+{
     std::random_device rd;
     std::default_random_engine rng(rd());
-    std::shuffle(availableAbilities.begin(), availableAbilities.end(), rng);
+    std::shuffle(factories.begin(), factories.end(), rng);
 
-    for (IAbility* ability : availableAbilities) {
-        abilityQueue.push(ability);
+    for (IAbilityFactory* abilityFactory : factories) {
+        abilityQueue.push(abilityFactory);
     }
-}
-
-void AbilityManager::setCurrentAbilityParams(const std::unordered_map<std::string, int>& params) 
-{
-    currentParams = params;
-}
-
-std::pair<std::string, std::vector<std::string>> AbilityManager::getCurrentAbilityParams() const 
-{   
-    if (abilityQueue.empty()) 
-    {
-        throw NoAbilitiesException();
-    }
-    IAbility* ability = abilityQueue.front();
-    std::vector<std::string> params = ability->requiredParams();
-    return {ability->getName(), params};
 }
 
 void AbilityManager::getRandomAbility() 
 {
-    int randomIndex = rand() % availableAbilities.size();
-    IAbility* newAbility = availableAbilities[randomIndex];
+    int randomIndex = rand() % factories.size();
+    IAbilityFactory* newAbility = factories[randomIndex];
     abilityQueue.push(newAbility);
 }
 
-void AbilityManager::activateAbility() {
-    if (abilityQueue.empty()) 
+void AbilityManager::activateAbility(GameState& gameState, IPlayer* player) {
+    if (abilityQueue.empty())
     {
         throw NoAbilitiesException();
     }
 
-    IAbility* ability = abilityQueue.front();
+    IAbilityFactory* factory = abilityQueue.front();
+    IAbility* ability = factory->create(infoHolder);
     
-    ability->setParams(currentParams);
-    ability->activate();
+    ability->activate(gameState, player);
     abilityQueue.pop();
+}
+
+std::vector<std::string> AbilityManager::getActiveFactories() const {
+    std::vector<std::string> activeFactories;
+    std::queue<IAbilityFactory*> tempQueue = abilityQueue;
+
+    while (!tempQueue.empty()) {
+        IAbilityFactory* factory = tempQueue.front();
+        tempQueue.pop();
+        activeFactories.push_back(factory->getName());
+    }
+
+    return activeFactories;
+}
+
+void AbilityManager::loadFactories(const std::vector<std::string>& factoryNames) {
+    while (!abilityQueue.empty()) {
+        abilityQueue.pop();
+    }
+
+    for (const auto& name : factoryNames) {
+        bool factoryFound = false;
+
+        for (IAbilityFactory* factory : factories) {
+            if (factory->getName() == name) {
+                abilityQueue.push(factory);
+                factoryFound = true;
+                break;
+            }
+        }
+
+        if (!factoryFound) {
+            std::cout << ("Unknown factory: " + name) << '\n';
+        }
+    }
 }

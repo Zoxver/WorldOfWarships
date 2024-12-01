@@ -1,6 +1,6 @@
 #include "ShipManager.h"
 
-ShipManager::ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes) : shipsAmount(shipsAmount)
+ShipManager::ShipManager(int shipsAmount, std::vector<int>& shipsSizes) : shipsAmount(shipsAmount)
 {
     if (shipsAmount != shipsSizes.size())
     {
@@ -13,6 +13,16 @@ ShipManager::ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes)
     }
 }
 
+std::vector<int> ShipManager::getShipsSizes() const {
+    std::vector<int> shipLengths;
+    
+    for (const Ship& ship : ships) {
+        shipLengths.push_back(static_cast<int>(ship.getSize()));
+    }
+
+    return shipLengths;
+}
+
 Ship& ShipManager::getShip(int index)
 {
     return ships[index];
@@ -21,4 +31,25 @@ Ship& ShipManager::getShip(int index)
 int ShipManager::getShipAmount() const
 {
     return shipsAmount;
+}
+
+int ShipManager::getShipsSunked() const 
+{   
+    int amount = 0;
+    for (const Ship& ship : ships) {
+        if (ship.isSunk()) {
+            amount++;
+        }
+    }
+    return amount;
+}
+
+bool ShipManager::allShipsSunk() const 
+{
+    for (const Ship& ship : ships) {
+        if (!ship.isSunk()) {
+            return false;
+        }
+    }
+    return true;
 }

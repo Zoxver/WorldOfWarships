@@ -6,11 +6,9 @@
 
 class ScannerAbility : public IAbility {
 public:
-    ScannerAbility(GameField& field);
-    void activate() override;
+    ScannerAbility(GameField& field, int x, int y);
+    void activate(GameState& gameState, std::optional<IPlayer*> player) override;
     std::string getName() const override;
-    std::vector<std::string> requiredParams() const override;
-    void setParams(const std::unordered_map<std::string, int>& params) override;
 
 private:
     GameField& field;

@@ -27,7 +27,7 @@ public:
     int getSegmentIndex() const;
     void setShip(Ship* shipPtr);
     void setSegmentIndex(int segmentIndex);
-    bool attack(bool attack = true);
+    bool attack(bool attack = true, int damage = 1);
     void printCell(bool isForEnemy) const;
 };
 

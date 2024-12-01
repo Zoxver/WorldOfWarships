@@ -2,30 +2,12 @@
 
 DoubleDamageAbility::DoubleDamageAbility(GameField& field) : field(field) {}
 
-void DoubleDamageAbility::activate() 
+void DoubleDamageAbility::activate(GameState& gameState, std::optional<IPlayer*> player)
 {
-    field.attackCell(x, y);
-    field.attackCell(x, y);
+    static_cast<UserPlayer*>(*player)->setDamageX(2);
 }
 
 std::string DoubleDamageAbility::getName() const
 {
     return "Двойной урон";
-}
-
-std::vector<std::string> DoubleDamageAbility::requiredParams() const
-{
-    return {"x", "y"};
-}
-    
-void DoubleDamageAbility::setParams(const std::unordered_map<std::string, int>& params)
-{
-    if (params.count("x")) 
-    {
-        x = params.at("x");
-    }
-    if (params.count("y")) 
-    {
-        y = params.at("y");
-    }
 }

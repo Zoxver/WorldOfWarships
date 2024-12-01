@@ -13,10 +13,14 @@ private:
     std::vector<Ship> ships;
 
 public:
-    ShipManager(int shipsAmount, std::initializer_list<int> shipsSizes);
+    //ShipManager() {};
+    ShipManager(int shipsAmount, std::vector<int>& shipsSizes);
     
     Ship& getShip(int index);
     int getShipAmount() const;
+    int getShipsSunked() const;
+    std::vector<int> getShipsSizes() const;
+    bool allShipsSunk() const;
 };
 
 #endif

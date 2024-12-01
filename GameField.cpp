@@ -12,6 +12,8 @@ GameField::GameField(int width, int height) : width(width), height(height)
     field = std::vector<std::vector<Cell>>(height, std::vector<Cell>(width));
 }
 
+//GameField::GameField() : width(10), height(10) {}
+
 GameField::GameField(const GameField &other) : width(other.width), height(other.height), field(other.field)
 {
 }
@@ -79,9 +81,19 @@ void GameField::validatePlacement(int x, int y, int size, Ship::Orientation orie
     }
 }
 
-bool GameField::getAbilityRequired() const
+std::vector<std::vector<Cell>> GameField::getField() const
 {
-    return abilityRequired;
+    return field;
+}
+
+int GameField::getWidth() const
+{
+    return width;
+}
+
+int GameField::getHeight() const
+{
+    return height;
 }
 
 void GameField::printField(bool isForEnemy, int startX, int startY, int endX, int endY) const
@@ -147,46 +159,17 @@ void GameField::placeShip(Ship& ship, int x, int y, Ship::Orientation orientatio
     }
 }
 
-void GameField::attackCell(int x, int y, bool attack)
+bool GameField::attackCell(int x, int y, int damage, bool attack)
 {
     if (!isWithinBounds(x, y))
     {
         throw AttackOutOfBoundsException();
     } 
-    if (field[y][x].attack(attack))
+    if (field[y][x].attack(attack, damage))
     {   
-        if (attack)
-        {
-            std::cout << "Попадание по координатам (" << x << ", " << y << ")\n";
-        }
-        if (field[y][x].getShip()->isSunk())
-        {
-            abilityRequired = true;
-        }
+        return attack;
     } else
     {
-        std::cout << "Промах по координатам (" << x << ", " << y << ")\n";
+        return false;
     }
-}
-
-void GameField::randomFire() 
-{
-    std::vector<std::pair<int, int>> shipCells;
-
-    for (int y = 0; y < height; ++y) 
-    {
-        for (int x = 0; x < width; ++x) 
-        {
-            if (field[y][x].getShip()) 
-            {
-                shipCells.emplace_back(x, y);
-            }
-        }
-    }
-
-    int randomIndex = rand() % shipCells.size();
-    int x = shipCells[randomIndex].first;
-    int y = shipCells[randomIndex].second;
-    attackCell(x, y, false);
-
 }

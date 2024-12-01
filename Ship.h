@@ -21,7 +21,7 @@ public:
 
     bool isSunk() const;
     void checkSegmentIndex(int index) const;
-    void damageSegment(int index);
+    bool damageSegment(int index, int damage);
     SegmentHealth getSegmentStatus(int index) const;
     ShipSize getSize() const;
     Orientation getOrientation() const;
