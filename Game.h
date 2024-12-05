@@ -37,6 +37,7 @@ private:
 public:
     Game(IPlayer* player, IPlayer* bot);
     Game(IPlayer* player, IPlayer* bot, const std::string& filename);
+    ~Game();
 
     
     void playRound();

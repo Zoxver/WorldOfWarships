@@ -26,6 +26,16 @@ Game::Game(IPlayer* player, IPlayer* bot, const std::string& filename)
     loadGame(filename);
 }
 
+Game::~Game(){
+    delete playerField;
+    delete botField;
+    delete playerAbilities;
+    delete playerShips;
+    delete botShips;
+    delete holder;
+    delete reader;
+}
+
 void Game::initialize() {
 while (true) {
         std::cout << "\nГлавное меню:\n";
@@ -154,11 +164,14 @@ void Game::restartGame() {
     std::cout << "Начинается новая игра...\n";
     isGameOver = false;
     gameState.dropCommandLog();
+    delete botField;
     botField = new GameField(playerField->getWidth(), playerField->getHeight());
     std::vector<int> shipSizes = playerShips->getShipsSizes();
+    delete botShips;
     botShips = new ShipManager(shipSizes.size(), shipSizes);
     preparePhase(true);
     std::vector<std::string> abilities = playerAbilities->getActiveFactories();
+    delete playerAbilities;
     playerAbilities = new AbilityManager(*botField, *holder, *reader, player);
     playerAbilities->loadFactories(abilities);
 
@@ -264,6 +277,8 @@ bool Game::loadGame(const std::string& filename) {
 
             int width = std::stoi(cmd.parameters[0]);
             int height = std::stoi(cmd.parameters[1]);
+            delete playerField;
+            delete botField;
             playerField = new GameField(width, height);
             botField = new GameField(width, height);
 
@@ -279,6 +294,8 @@ bool Game::loadGame(const std::string& filename) {
             for (const auto& sizeStr : cmd.parameters) {
                 shipSizes.push_back(std::stoi(sizeStr));
             }
+            delete playerShips;
+            delete botShips;
             playerShips = new ShipManager(shipSizes.size(), shipSizes);
             botShips = new ShipManager(shipSizes.size(), shipSizes);
 
